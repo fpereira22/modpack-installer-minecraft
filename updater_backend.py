@@ -76,14 +76,28 @@ class ModpackUpdaterBackend:
             self.progress_cb(1.0, "¡Actualización completada!")
             self.finished_cb(True, "Forge y mods listos para jugar.")
 
-        except requests.exceptions.ConnectionError:
-            self.finished_cb(False, "Sin conexión a internet.")
-        except requests.exceptions.Timeout:
-            self.finished_cb(False, "Tiempo de espera agotado al conectar.")
+        except requests.exceptions.ConnectionError as e:
+            print(f"[ERROR RED] No se pudo establecer conexión: {e}")
+            self.finished_cb(False, "Error: Sin conexión a internet.")
+        except requests.exceptions.Timeout as e:
+            print(f"[ERROR TIMEOUT] La solicitud tardó demasiado: {e}")
+            self.finished_cb(False, "Error: Tiempo de espera agotado.")
         except requests.exceptions.HTTPError as e:
-            self.finished_cb(False, f"Error HTTP: {e.response.status_code}")
+            status = e.response.status_code
+            print(f"[ERROR HTTP {status}] Error en la solicitud: {e.response.url}")
+            if status == 404:
+                print(" >> El archivo no fue encontrado. Verifica que el configuracion.json o los mods estén en el repo.")
+                self.finished_cb(False, f"Error HTTP 404: No encontrado.")
+            elif status >= 500:
+                print(" >> Error interno del servidor (GitHub podría estar caído).")
+                self.finished_cb(False, f"Error HTTP {status}: Error de servidor.")
+            else:
+                self.finished_cb(False, f"Error HTTP {status}")
         except Exception as e:
-            self.finished_cb(False, f"Error inesperado: {e}")
+            print(f"[ERROR INESPERADO] {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc() # Imprime el stack trace completo en consola
+            self.finished_cb(False, f"Error crítico: {str(e)}")
 
     # ── Descarga del JSON de configuración ───────────────────────────────────
     @staticmethod
