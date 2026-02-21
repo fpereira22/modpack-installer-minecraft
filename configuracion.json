@@ -32,6 +32,7 @@
         "sophisticatedcore-1.20.1-1.3.5.1505.jar",
         "spark-1.10.53-forge.jar",
         "xaerominimap-forge-1.20.1-25.3.10.jar",
-        "zume-1.2.1.jar"
+        "zume-1.2.1.jar",
+        "handcrafted-forge-1.20.1-3.0.6.jar"
     ]
 }
